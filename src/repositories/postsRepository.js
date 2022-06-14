@@ -22,8 +22,31 @@ async function getPostsByToken(token, hashtag) {
     }
 }
 
-const postsRepository = {
-    getPostsByToken
+async function getUserByToken(token){
+    try{
+        return db.query(`
+            SELECT * from sessions WHERE token=$1
+        `, [token]);
+    }catch(error){
+        console.log(error);
+        return error;
+    }
 }
 
-export default postsRepository;
+async function publishPost(url, message, userId) {
+    try{
+        return db.query(`
+            INSERT INTO posts("userId", url, message, likes, "createdAt", "updatedAt")
+            VALUES ($1, $2, $3, $4, $5, $6)
+            `, [userId, url, message, 0, new Date(), new Date()]);
+    }catch(error){
+        console.log(error);
+        return error;
+    }
+}
+
+const postsRepository = {
+    getPostsByToken,
+    getUserByToken,
+    publishPost
+}
