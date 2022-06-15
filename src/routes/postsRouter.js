@@ -1,10 +1,11 @@
 import {Router} from "express";
 
-import getPosts from "../controllers/postsController.js";
+import {getPosts, postPost} from "../controllers/postsController.js";
 
 const postsRouter = Router();
 
 //rota não autenticada, ainda ...
-postsRouter.get("/timeline", getPosts);
+postsRouter.get("/posts", getPosts);
+postsRouter.post("/posts", postPost);
 
 export default postsRouter;
