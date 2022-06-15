@@ -8,11 +8,11 @@ async function createUser(username, email, password) {
 
     const query = {
       text: `
-          INSERT INTO users (username, email, password)
-          VALUES ($1, $2, $3)
+          INSERT INTO users (username, email, password, createdAt, updatedAt)
+          VALUES ($1, $2, $3, $4, $5)
           RETURNING id;
         `,
-      values: [username, email, passwordHash],
+      values: [username, email, passwordHash, new Date(), new Date()],
     };
 
     return db.query(query);
