@@ -50,3 +50,5 @@ const postsRepository = {
     getUserByToken,
     publishPost
 }
+
+export default postsRepository;
