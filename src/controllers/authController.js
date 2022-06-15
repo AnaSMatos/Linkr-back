@@ -6,7 +6,7 @@ import sessionsRepository from "./../repositories/sessionsRepository.js";
 import SessionRepository from "./../repositories/sessionsRepository.js";
 
 export async function signUp(req, res) {
-  const {name, email, password, confirmPassword} = req.body;
+  const {name, email, password, confirmPassword, image} = req.body;
 
   try {
     
@@ -16,7 +16,7 @@ export async function signUp(req, res) {
     
     const SALT = 10
     const encryptedPassword = bcrypt.hashSync(password, SALT)
-    usersRepository.createUser(name, email, encryptedPassword);
+    usersRepository.createUser(name, email, encryptedPassword, image);
 
     res.status(201).send({message:  "SignUp successfully!"});
     console.log("SignUp successfully!");
@@ -39,10 +39,12 @@ export async function signIn(req, res) {
     if (!user)
       return res.status(404).send(`There isn't a user with this email: ${email}.`);
 
-    console.log(user.rows[0].password)
+    const encryptedPassword = user.rows[0].password;
+    console.log("encryptedPassword: ", encryptedPassword)
     
-    if (!bcrypt.compareSync(password, user.rows[0].password))
+    if (!bcrypt.compareSync(password, encryptedPassword))
       return res.status(401).send({message: `Wrong password!`})
+    
     
     const token = uuid();
     const session = await sessionsRepository.createSession(user.rows[0].id, token)

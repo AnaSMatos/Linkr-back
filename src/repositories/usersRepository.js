@@ -1,18 +1,18 @@
 import bcrypt from "bcrypt";
 import db from "./../config/db.js";
 
-async function createUser(username, email, password) {
+async function createUser(username, email, password, image) {
   try {
     const SALT = 10;
     const passwordHash = await bcrypt.hash(password, SALT);
 
     const query = {
       text: `
-          INSERT INTO users (username, email, password, createdAt, updatedAt)
-          VALUES ($1, $2, $3, $4, $5)
+          INSERT INTO users (username, email, password, image, createdAt, updatedAt)
+          VALUES ($1, $2, $3, $4, $5, $6)
           RETURNING id;
         `,
-      values: [username, email, passwordHash, new Date(), new Date()],
+      values: [username, email, passwordHash, image, new Date(), new Date()],
     };
 
     return db.query(query);
