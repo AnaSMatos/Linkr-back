@@ -11,7 +11,7 @@ export async function signUp(req, res) {
   try {
     
     const isUser = await usersRepository.getUserByEmail(email);
-    if (!isUser)
+    if (isUser.rowCount>0)
       return res.status(409).send({message: `There is already a user with this email: ${email}.`});
     
     const SALT = 10
@@ -36,8 +36,9 @@ export async function signIn(req, res) {
   try {
     
     const user = await usersRepository.getUserByEmail(email);
-    if (!user)
-      return res.status(404).send(`There isn't a user with this email: ${email}.`);
+    console.log(user.rowCount)
+    if (user.rowCount==0)
+      return res.status(404).send({message: `There isn't a user with this email: ${email}.`});
 
     const encryptedPassword = user.rows[0].password;
     console.log("encryptedPassword: ", encryptedPassword)
