@@ -7,15 +7,19 @@ async function getPostsByToken(token, hashtag) {
         : 
         "";
         return db.query(`
-            SELECT posts.url,posts.message,posts.likes,posts."createdAt",hashtags.name
+            SELECT posts.url,posts.message,posts.likes,users.username,
+            users.image
             FROM posts
+            JOIN users ON posts."userId" = users.id
             JOIN sessions ON posts."userId" = sessions."userId"
             LEFT JOIN "postsHashtags" ON  posts.id = "postsHashtags"."postId"
             LEFT JOIN hashtags ON "postsHashtags"."hashtagId" = hashtags.id
             WHERE sessions.token=$1 ${hashtagsFilter}
+            GROUP BY posts.id,users.username,users.image
             ORDER BY posts."createdAt" DESC
             LIMIT 20
         `, [token]);
+        
     } catch (error) {
         console.log(error);
         return error;
