@@ -5,10 +5,10 @@ async function createSession(userId, token) {
     const query = {
       text: `
           INSERT INTO sessions ("userId", token)
-          VALUES ($1, $2, $3, $4)
-          RETURNING id, "userId", token, loginDate, logoutDate;
+          VALUES ($1, $2)
+          RETURNING id, "userId", token;
         `,
-      values: [userId, token, new Date(), new Date()],
+      values: [userId, token],
     };
 
     return db.query(query);
