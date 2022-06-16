@@ -4,15 +4,15 @@ import db from "./../config/db.js";
 async function createUser(username, email, password, image) {
   try {
     const SALT = 10;
-    const passwordHash = await bcrypt.hash(password, SALT);
+    const passwordHash = bcrypt.hashSync(password, SALT);
 
     const query = {
       text: `
-          INSERT INTO users (username, email, password, image, createdAt, updatedAt)
-          VALUES ($1, $2, $3, $4, $5, $6)
+          INSERT INTO users (username, email, password, image)
+          VALUES ($1, $2, $3, $4)
           RETURNING id;
         `,
-      values: [username, email, passwordHash, image, new Date(), new Date()],
+      values: [username, email, passwordHash, image],
     };
 
     return db.query(query);
