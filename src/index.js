@@ -1,6 +1,7 @@
 import express, {json} from "express";
 import dotenv from "dotenv";
 import chalk from "chalk"
+import cors from "cors";
 
 dotenv.config();
 

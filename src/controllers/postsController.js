@@ -15,12 +15,14 @@ export async function getPosts(req,res){
 
 export async function postPost(req, res){
     const authorization = req.headers.authorization;
+    if(!authorization){
+        return res.status(401).send("token not found");
+    }
     const token = authorization.replace("Bearer", "").trim();
     const {url, message} = req.body;
     if(!message) message = null
     try{
         const userId = await postsRepository.getUserByToken(token);
-
         const publish = await postsRepository.publishPost(url, message, userId.rows[0].userId);
 
         res.sendStatus(201);
