@@ -1,9 +1,10 @@
 import { validate as uuidValidate } from "uuid";
 import SessionRepository from "./../repositories/sessionsRepository.js";
+import UserRepository from "./../repositories/usersRepository.js";
 
 export async function authValidator(req, res, next) {
   const authorization = req.headers.authorization;
-  const token = authorization.split(" ")[1]?.trim();
+  const token = authorization?.split(" ")[1]?.trim();
 
   if (!token) {
     return res.status(401).send({
@@ -18,8 +19,7 @@ export async function authValidator(req, res, next) {
   }
 
   try {
-    const { userId } = req.body;
-    const session = await SessionRepository.getSessionByUserId(userId);
+    const session = await SessionRepository.getSessionByToken(token);
 
     if (session.rowCount === 0) {
       return res.status(404).json({
@@ -27,19 +27,16 @@ export async function authValidator(req, res, next) {
       });
     }
 
-    if (session.rows[0].token !== token) {
-      return res.status(401).json({
-        message: "Invalid token",
-      });
-    }
+    const user = await UserRepository.getUserById(session.rows[0].userId);
 
-    if (session.rows[0].userId !== userId) {
-      return res.status(401).json({
-        message: "This user does not own this session",
+    if (user.rowCount === 0) {
+      return res.status(404).json({
+        message: "User not found",
       });
     }
 
     res.locals.session = session.rows[0];
+    res.locals.user = user.rows[0];
 
     next();
   } catch (error) {
