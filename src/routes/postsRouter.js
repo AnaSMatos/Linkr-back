@@ -5,7 +5,6 @@ import { authValidator } from "../middlewares/authValidator.js";
 
 const postsRouter = Router();
 
-//rota não autenticada, ainda ...
 postsRouter.get("/posts",authValidator, getPosts);
 postsRouter.post("/posts", postPost);
 
