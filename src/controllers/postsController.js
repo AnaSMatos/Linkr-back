@@ -21,14 +21,14 @@ export async function postPost(req, res) {
         return res.status(401).send("token not found");
     }
     const token = authorization.replace("Bearer", "").trim();
-    const { url, message } = req.body;
+    const { url, message, hashtags } = req.body;
     try {
         console.log(authorization)
         console.log(token)
         // const userId = await postsRepository.getUserByToken(token);
         const userId = 1;
         const publish = await postsRepository.publishPost(url, message, userId);
-
+        const postHashtag = await postsRepository.postHashtag(hashtags);
         res.sendStatus(201);
     } catch (error) {
         console.log(error);
