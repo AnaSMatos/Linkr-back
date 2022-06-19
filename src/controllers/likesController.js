@@ -22,7 +22,10 @@ export async function addLike(req, res) {
 
     const allUsersLiked = await LikeRepository.getUsersWhoLikedAPost(postId);
 
-    const usersWhoLiked = allUsersLiked.rows.map((user) => ({
+    const anotherUsers = allUsersLiked.rows.filter(
+      (anotherUser) => anotherUser.id != user.id,
+    );
+    const usersWhoLiked = anotherUsers.map((user) => ({
       id: user.id,
       username: user.username,
     }));
@@ -84,7 +87,10 @@ export async function getInfoLikes(req, res) {
 
     const allUsersLiked = await LikeRepository.getUsersWhoLikedAPost(postId);
 
-    const usersWhoLiked = allUsersLiked.rows.map((user) => ({
+    const anotherUsers = allUsersLiked.rows.filter(
+      (anotherUser) => anotherUser.id != user.id,
+    );
+    const usersWhoLiked = anotherUsers.map((user) => ({
       id: user.id,
       username: user.username,
     }));
