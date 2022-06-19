@@ -55,11 +55,11 @@ export async function signIn(req, res) {
       user.rows[0].id,
       token,
     );
-
     return res.status(201).send({
       sessionId: newSession.rows[0].id,
       userId: newSession.rows[0].userId,
       token,
+      userImage: user.rows[0].image
     });
   } catch (error) {
     console.log("Error getting user data.", error.message);

@@ -3,7 +3,7 @@ CREATE TABLE users (
   email TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
   username TEXT NOT NULL,
-  image TEXT
+  image TEXT NOT NULL,
   "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP
 );
@@ -29,6 +29,14 @@ CREATE TABLE "postsHashtags" (
   id SERIAL PRIMARY KEY,
   "postId" INTEGER NOT NULL REFERENCES posts(id),
   "hashtagId" INTEGER NOT NULL REFERENCES hashtags(id),
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+  "updatedAt" TIMESTAMP
+);
+
+CREATE TABLE likes (
+  id SERIAL PRIMARY KEY,
+  "userId" INTEGER NOT NULL REFERENCES users(id),
+  "postId" INTEGER NOT NULL REFERENCES posts(id),
   "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP
 );

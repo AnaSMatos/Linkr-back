@@ -72,6 +72,7 @@ async function getSessionById(id) {
   }
 }
 
+
 async function getSessionByUserId(userId) {
   try {
     const query = {
