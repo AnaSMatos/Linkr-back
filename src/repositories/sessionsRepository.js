@@ -36,6 +36,24 @@ async function deleteSession(id, userId) {
   }
 }
 
+async function getSessionByToken(token) {
+  try {
+    const query = {
+      text: `
+          SELECT *
+          FROM sessions
+          WHERE token = $1 AND "logoutDate" IS NULL;
+        `,
+      values: [token],
+    };
+
+    return db.query(query);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
+
 async function getSessionById(id) {
   try {
     const query = {

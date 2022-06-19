@@ -1,5 +1,6 @@
 import db from "../config/db.js";
 
+
 async function getPostsByToken(token, hashtag) {
   try {
     const hashtagsFilter = hashtag
