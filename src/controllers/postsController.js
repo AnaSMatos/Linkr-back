@@ -2,11 +2,9 @@ import postsRepository from "../repositories/postsRepository.js";
 import urlMetadata from "url-metadata";
 
 export async function getPosts(req, res) {
-    const authorization = req.headers.authorization;
-    const token = authorization.replace("Bearer", "").trim();
     const { hashtag } = req.query;
     try {
-        const { rows: posts } = await postsRepository.getPostsByToken(token, hashtag);
+        const { rows: posts } = await postsRepository.getPosts( hashtag);
         const postData = await getMetadata(posts);
         res.status(200).send(postData);
     } catch (error) {
