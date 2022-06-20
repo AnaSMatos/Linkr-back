@@ -15,15 +15,14 @@ export async function getPosts(req, res) {
 
 export async function getUserPosts(req, res) {
     const { userId } = req.params;
-    console.log("UserId: ", userId);
-    /* try {
+    try {
         const { rows: posts } = await postsRepository.getPostByUser(userId);
         const postData = await getMetadata(posts);
         res.status(200).send(postData);
     } catch (error) {
         console.log(error);
         return res.status(500).send("error getPosts");
-    } */
+    }
 }
 
 export async function postPost(req, res) {
