@@ -27,6 +27,6 @@ export async function getUsersBySearch(req, res) {
     res.status(200).send(users.rows);
   } catch (e) {
     console.log(e);
-    return e;
+    res.sendStatus(500);
   }
 }
