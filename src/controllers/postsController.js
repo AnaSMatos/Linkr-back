@@ -39,6 +39,19 @@ export async function postPost(req, res) {
     }
 }
 
+export async function getPostsByUser(req, res) {
+    const { userId } = req.params;
+
+    try {
+        const { rows: posts } = await postsRepository.getPostsByUser(userId);
+        const postData = await getMetadata(posts);
+        res.status(200).send(postData);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send("error getPosts");
+    }
+}
+
 async function getMetadata(posts){
     const postPromisse = [];
     for(let i = 0; i<posts.length; i++){

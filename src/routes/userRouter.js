@@ -1,10 +1,20 @@
-import {Router} from "express";
+import { Router } from "express";
 
-import getUser from "../controllers/userController.js";
 import { authValidator } from "../middlewares/authValidator.js";
+import { validateSchemaInQuery } from "../middlewares/schemaValidator.js";
+import { searchSchema } from "../schemas/userSchema.js";
+
+import { getUsersBySearch, getUser } from "../controllers/userController.js";
 
 const userRouter = Router();
 
-userRouter.get("/user/:id", authValidator, getUser);
+userRouter.use(authValidator);
+
+userRouter.get("/user/:id", getUser);
+userRouter.get(
+  "/search",
+  validateSchemaInQuery(searchSchema),
+  getUsersBySearch,
+);
 
 export default userRouter;

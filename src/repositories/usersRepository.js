@@ -58,10 +58,34 @@ async function getUserByEmail(email) {
   }
 }
 
+async function getUsersByUsername(username) {
+  try {
+    const query = {
+      text: `
+          SELECT
+            id,
+            username,
+            image
+          FROM 
+            users
+          WHERE 
+            username ILIKE ('%' || $1 || '%');
+        `,
+      values: [username],
+    };
+
+    return db.query(query);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
+
 const usersRepository = {
   createUser,
   getUserById,
   getUserByEmail,
+  getUsersByUsername,
 };
 
 export default usersRepository;
