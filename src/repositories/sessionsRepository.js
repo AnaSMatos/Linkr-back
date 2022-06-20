@@ -77,8 +77,7 @@ const sessionsRepository = {
   createSession,
   deleteSession,
   getSessionById,
-  getSessionByUserId,
-  getSessionByToken,
+  getSessionByUserId
 };
 
 export default sessionsRepository;
