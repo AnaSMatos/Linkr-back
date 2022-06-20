@@ -1,7 +1,6 @@
 import db from "../config/db.js";
 
-
-async function getPostsByToken(token, hashtag) {
+async function getPosts(hashtag) {
   try {
     const hashtagsFilter = hashtag
       ? `WHERE hashtags.name = '${hashtag} AND posts."updatedAt" IS NULL'`
@@ -71,7 +70,7 @@ async function publishPost(url, message, userId) {
 }
 
 const postsRepository = {
-  getPostsByToken,
+  getPosts,
   getPostById,
   getUserByToken,
   publishPost,
