@@ -1,5 +1,6 @@
 import postsRepository from "../repositories/postsRepository.js";
 import urlMetadata from "url-metadata";
+import hashtagRepository from "../repositories/hashtagRepository.js";
 
 export async function getPosts(req, res) {
     const { hashtag } = req.query;
@@ -16,10 +17,11 @@ export async function getPosts(req, res) {
 export async function postPost(req, res) {
     const authorization = req.headers.authorization;
     const token = authorization.replace("Bearer", "").trim();
-    const { url, message, userId } = req.body;
+    const { url, message, userId, hashtags } = req.body;
     if (!message) message = null
     try {
         const publish = await postsRepository.publishPost(url, message, userId);
+        await createHashtag(hashtags);
         res.sendStatus(201);
     } catch (error) {
         console.log(error);
@@ -35,6 +37,7 @@ async function getMetadata(posts){
             postPromisse.push(metadata);
         } catch (error) {
             console.log(error);
+            return error;
         }
     }
     const postMetadata = await Promise.all(postPromisse);
@@ -48,4 +51,21 @@ async function getMetadata(posts){
         }});
     }
     return postData;
+}
+
+async function createHashtag(hashtags){
+    try {
+        for (let i = 0; i < hashtags.length; i++) {
+            const {rows}= await hashtagRepository.getHashtagsByName(hashtags[i]);
+            if(rows.length>0){
+                hashtags.splice(i,1);
+            }
+        }
+        for (let i = 0; i < hashtags.length; i++) {
+            await hashtagRepository.insertHashtag(hashtags[i]);
+        }
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
 }
