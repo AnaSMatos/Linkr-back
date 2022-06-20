@@ -73,11 +73,30 @@ async function getSessionByUserId(userId) {
   }
 }
 
+async function getSessionByToken(token) {
+  try {
+    const query = {
+      text: `
+          SELECT *
+          FROM sessions
+          WHERE token = $1 AND "logoutDate" IS NULL;
+        `,
+      values: [token],
+    };
+
+    return db.query(query);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
+
 const sessionsRepository = {
   createSession,
   deleteSession,
   getSessionById,
-  getSessionByUserId
+  getSessionByUserId,
+  getSessionByToken
 };
 
 export default sessionsRepository;
