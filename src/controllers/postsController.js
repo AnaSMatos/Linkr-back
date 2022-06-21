@@ -39,7 +39,6 @@ export async function postPost(req, res) {
     const authorization = req.headers.authorization;
     const token = authorization.replace("Bearer", "").trim();
     const { url, message, userId, hashtags } = req.body;
-    if (!message) message = null
     try {
         const publish = await postsRepository.publishPost(url, message, userId);
         await createHashtag(hashtags);
@@ -111,9 +110,6 @@ export async function deletePost(req, res){
     try {
         const userId = await postsRepository.getUserByToken(token);
         const post = await postsRepository.getPostById(postId);
-
-        console.log('user:', userId.rows)
-        console.log('post:', post.rows)
 
         if(userId.rows[0].userId !== post.rows[0].userId){
             return res.status(401).send("You can't delete this post");
