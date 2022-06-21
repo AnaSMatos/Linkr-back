@@ -169,6 +169,39 @@ async function publishPost(url, message, userId) {
   }
 }
 
+async function removePost(id) {
+  try{
+    return db.query(`
+      DELETE FROM posts WHERE id = $1;
+    `, [id]);
+  }catch(error){
+    console.log(error);
+    return error;
+  }
+}
+
+async function removeHastags(id){
+  try{
+    return db.query(`
+      DELETE FROM "postsHashtags" WHERE "postId" = $1;
+    `, [id]);
+  }catch(error){
+    console.log(error);
+    return error;
+  }
+}
+
+async function removeLikes(id){
+  try{
+    return db.query(`
+      DELETE FROM likes WHERE "postId" = $1;
+    `, [id]);
+  }catch(error){
+    console.log(error);
+    return error;
+  }
+}
+
 const postsRepository = {
   getPosts,
   getPostById,
@@ -176,7 +209,10 @@ const postsRepository = {
   getUserByToken,
   getPostByUser,
   publishPost,
-  getPostsIdByUserId
+  getPostsIdByUserId,
+  removePost,
+  removeHastags,
+  removeLikes
 };
 
 export default postsRepository;
