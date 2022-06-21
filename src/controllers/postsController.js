@@ -4,10 +4,19 @@ import hashtagRepository from "../repositories/hashtagRepository.js";
 
 export async function getPosts(req, res) {
     const { hashtag } = req.query;
+    const userId = res.locals.user.id;
+    console.log("userId: ", userId);
     try {
-        const { rows: posts } = await postsRepository.getPosts(hashtag);
-        const postData = await getMetadata(posts);
-        res.status(200).send(postData);
+        if (!hashtag){
+            const { rows: posts } = await postsRepository.getPostByFollowings(userId);
+            const postData = await getMetadata(posts);
+            console.log(postData)
+            res.status(200).send(postData);
+        }else{
+            const { rows: posts } = await postsRepository.getPosts(hashtag);
+            const postData = await getMetadata(posts);
+            res.status(200).send(postData);
+        }
     } catch (error) {
         console.log(error);
         return res.status(500).send("error getPosts");
