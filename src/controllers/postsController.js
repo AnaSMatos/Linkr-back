@@ -94,3 +94,29 @@ async function createHashtag(hashtags){
         return error;
     }
 }
+
+export async function deletePost(req, res){
+    const { postId } = req.params;
+    const authorization = req.headers.authorization;
+    const token = authorization.replace("Bearer", "").trim();
+    try {
+        const userId = await postsRepository.getUserByToken(token);
+        const post = await postsRepository.getPostById(postId);
+
+        console.log('user:', userId.rows)
+        console.log('post:', post.rows)
+
+        if(userId.rows[0].userId !== post.rows[0].userId){
+            return res.status(401).send("You can't delete this post");
+        }
+
+        await postsRepository.removeHastags(postId);
+        await postsRepository.removeLikes(postId)
+        await postsRepository.removePost(postId);
+        res.send("Your post was deleted").status(200);
+
+    }catch(error){
+        console.log(error);
+        return res.sendStatus(500);
+    }
+}
