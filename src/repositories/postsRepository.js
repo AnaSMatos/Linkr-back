@@ -2,7 +2,6 @@ import db from "../config/db.js";
 
 async function getPosts(hashtag) {
   try {
-    console.log(hashtag);
     const hashtagsFilter = hashtag
       ? `WHERE hashtags.name = '${hashtag}' AND posts."updatedAt" IS NULL`
       : 'WHERE posts."updatedAt" IS NULL';
@@ -18,6 +17,17 @@ async function getPosts(hashtag) {
       GROUP BY posts.id,users.username,users.image
       ORDER BY posts."createdAt" DESC
       LIMIT 20;`);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
+
+function getContPosts(userId){
+  try {
+    return db.query(`
+     SELECT COUNT(id) FROM posts
+    `);
   } catch (error) {
     console.log(error);
     return error;
@@ -223,6 +233,7 @@ const postsRepository = {
   getPostByUser,
   publishPost,
   getPostsIdByUserId,
+  getContPosts,
   getPostByFollowings,
   removePost,
   removeHastags,

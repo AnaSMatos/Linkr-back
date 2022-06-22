@@ -23,6 +23,17 @@ export async function getPosts(req, res) {
     }
 }
 
+export async function getNewPosts(req, res) {
+    try {
+        const { rows } = await postsRepository.getContPosts();
+        const contPosts = rows[0];
+        res.status(200).send(contPosts.count);
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send("error getNewPosts");
+    }
+}
+
 export async function getUserPosts(req, res) {
     const { userId } = req.params;
     try {
@@ -31,7 +42,7 @@ export async function getUserPosts(req, res) {
         res.status(200).send(postData);
     } catch (error) {
         console.log(error);
-        return res.status(500).send("error getPosts");
+        return res.status(500).send("error getUserPosts");
     }
 }
 
@@ -39,7 +50,7 @@ export async function postPost(req, res) {
     const authorization = req.headers.authorization;
     const token = authorization.replace("Bearer", "").trim();
     const { url, message, userId, hashtags } = req.body;
-    if (!message) message = null
+    if (!message) message === null
     try {
         const publish = await postsRepository.publishPost(url, message, userId);
         await createHashtag(hashtags);
@@ -63,36 +74,39 @@ export async function getPostsByUser(req, res) {
     }
 }
 
-async function getMetadata(posts){
-    const postPromisse = [];
-    for(let i = 0; i<posts.length; i++){
-        try {
+async function getMetadata(posts) {
+    try {
+        const postPromisse = [];
+        for (let i = 0; i < posts.length; i++) {
             const metadata = urlMetadata(posts[i].url);
             postPromisse.push(metadata);
-        } catch (error) {
-            console.log(error);
-            return error;
         }
+        const postMetadata = await Promise.all(postPromisse);
+        const postData = [];
+        for (let i = 0; i < postMetadata.length; i++) {
+            postData.push({
+                ...posts[i], postData: {
+                    postUrl: postMetadata[i].url,
+                    postImage: postMetadata[i].image,
+                    postTitle: postMetadata[i].title,
+                    postDescription: postMetadata[i].description
+                }
+            });
+        }
+        return postData;
+    } catch (error) {
+        console.log(error);
+        console.log("error getMetadata");
+        return error;
     }
-    const postMetadata = await Promise.all(postPromisse);
-    const postData = [];
-    for(let i = 0; i<postMetadata.length; i++){
-        postData.push({...posts[i], postData:{
-            postUrl: postMetadata[i].url,
-            postImage: postMetadata[i].image,
-            postTitle: postMetadata[i].title,
-            postDescription: postMetadata[i].description
-        }});
-    }
-    return postData;
 }
 
-async function createHashtag(hashtags){
+async function createHashtag(hashtags) {
     try {
         for (let i = 0; i < hashtags.length; i++) {
-            const {rows}= await hashtagRepository.getHashtagsByName(hashtags[i]);
-            if(rows.length>0){
-                hashtags.splice(i,1);
+            const { rows } = await hashtagRepository.getHashtagsByName(hashtags[i]);
+            if (rows.length > 0) {
+                hashtags.splice(i, 1);
             }
         }
         for (let i = 0; i < hashtags.length; i++) {
@@ -100,6 +114,7 @@ async function createHashtag(hashtags){
         }
     } catch (error) {
         console.log(error);
+        console.log("error createHashtag");
         return error;
     }
 }
