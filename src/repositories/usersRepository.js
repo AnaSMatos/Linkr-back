@@ -81,11 +81,30 @@ async function getUsersByUsername(username) {
   }
 }
 
+async function countFollowings(userId) {
+  try {
+    const query = {
+      text: `
+          SELECT COUNT(*) 
+          FROM following 
+          WHERE following."userId" = $1
+        `,
+      values: [userId],
+    };
+
+    return db.query(query);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
+
 const usersRepository = {
   createUser,
   getUserById,
   getUserByEmail,
   getUsersByUsername,
+  countFollowings
 };
 
 export default usersRepository;
