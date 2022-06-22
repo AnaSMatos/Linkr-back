@@ -56,6 +56,16 @@ async function getPosts(hashtag, userId) {
   }
 }
 
+function getContPosts(userId){
+  try {
+    return db.query(`
+     SELECT COUNT(id) FROM posts
+    `);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
 
 function getPostsIdByUserId(userId){
   try {
@@ -227,6 +237,7 @@ const postsRepository = {
   getPostByUser,
   publishPost,
   getPostsIdByUserId,
+  getContPosts,
   removePost,
   removeHastags,
   removeLikes
