@@ -126,6 +126,36 @@ async function getPostsByUserId(userId) {
   }
 }
 
+async function getPostByFollowings(userId) {
+    try {
+        return db.query(`
+            SELECT 
+                posts.id, 
+                posts.url, 
+                posts.message, 
+                posts.likes, 
+                users.username,
+                users.image, 
+                posts."userId"
+            FROM posts
+            JOIN users ON posts."userId" = users.id
+            LEFT JOIN following ON following."followingId" = posts."userId"
+            WHERE 
+                posts."updatedAt" IS NULL AND 
+                (posts."userId" = ${userId} OR following."userId" = ${userId})
+            GROUP BY 
+                posts.id,
+                users.username,
+                users.image
+            ORDER BY posts."createdAt" DESC
+            LIMIT 20;
+        `);
+    } catch (error) {
+        console.log(error);
+        return error;
+    }
+}
+
 async function getPostByUser(userId) {
   try {
     return db.query(`
@@ -143,23 +173,6 @@ async function getPostByUser(userId) {
     console.log(error);
     return error;
   }
-  /* try {
-    const query = {
-      text: `
-        SELECT 
-          * 
-        FROM 
-          posts 
-        WHERE 
-          "userId" = $1 AND "updatedAt" IS NULL;`,
-      values: [userId],
-    };
-
-    return db.query(query);
-  } catch (error) {
-    console.log(error);
-    return error;
-  } */
 }
 
 async function publishPost(url, message, userId) {
@@ -179,6 +192,39 @@ async function publishPost(url, message, userId) {
   }
 }
 
+async function removePost(id) {
+  try{
+    return db.query(`
+      DELETE FROM posts WHERE id = $1;
+    `, [id]);
+  }catch(error){
+    console.log(error);
+    return error;
+  }
+}
+
+async function removeHastags(id){
+  try{
+    return db.query(`
+      DELETE FROM "postsHashtags" WHERE "postId" = $1;
+    `, [id]);
+  }catch(error){
+    console.log(error);
+    return error;
+  }
+}
+
+async function removeLikes(id){
+  try{
+    return db.query(`
+      DELETE FROM likes WHERE "postId" = $1;
+    `, [id]);
+  }catch(error){
+    console.log(error);
+    return error;
+  }
+}
+
 const postsRepository = {
   getPosts,
   getPostById,
@@ -187,7 +233,11 @@ const postsRepository = {
   getPostByUser,
   publishPost,
   getPostsIdByUserId,
-  getContPosts
+  getContPosts,
+  getPostByFollowings,
+  removePost,
+  removeHastags,
+  removeLikes
 };
 
 export default postsRepository;

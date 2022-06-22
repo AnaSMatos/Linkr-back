@@ -4,10 +4,19 @@ import hashtagRepository from "../repositories/hashtagRepository.js";
 
 export async function getPosts(req, res) {
     const { hashtag } = req.query;
+    const userId = res.locals.user.id;
+    console.log("userId: ", userId);
     try {
-        const { rows: posts } = await postsRepository.getPosts(hashtag);
-        const postData = await getMetadata(posts);
-        res.status(200).send(postData);
+        if (!hashtag){
+            const { rows: posts } = await postsRepository.getPostByFollowings(userId);
+            const postData = await getMetadata(posts);
+            console.log(postData)
+            res.status(200).send(postData);
+        }else{
+            const { rows: posts } = await postsRepository.getPosts(hashtag);
+            const postData = await getMetadata(posts);
+            res.status(200).send(postData);
+        }
     } catch (error) {
         console.log(error);
         return res.status(500).send("error getPosts");
@@ -107,5 +116,31 @@ async function createHashtag(hashtags) {
         console.log(error);
         console.log("error createHashtag");
         return error;
+    }
+}
+
+export async function deletePost(req, res){
+    const { postId } = req.params;
+    const authorization = req.headers.authorization;
+    const token = authorization.replace("Bearer", "").trim();
+    try {
+        const userId = await postsRepository.getUserByToken(token);
+        const post = await postsRepository.getPostById(postId);
+
+        console.log('user:', userId.rows)
+        console.log('post:', post.rows)
+
+        if(userId.rows[0].userId !== post.rows[0].userId){
+            return res.status(401).send("You can't delete this post");
+        }
+
+        await postsRepository.removeHastags(postId);
+        await postsRepository.removeLikes(postId)
+        await postsRepository.removePost(postId);
+        res.send("Your post was deleted").status(200);
+
+    }catch(error){
+        console.log(error);
+        return res.sendStatus(500);
     }
 }
