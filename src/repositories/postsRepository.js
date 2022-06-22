@@ -1,57 +1,61 @@
 import db from "../config/db.js";
 
-async function getPosts(hashtag) {
+async function getPosts(hashtag, userId) {
   try {
-    const hashtagsFilter = hashtag
-      ? `WHERE hashtags.name = '${hashtag}' AND posts."updatedAt" IS NULL`
-      : 'WHERE posts."updatedAt" IS NULL';
 
-    return db.query(`
-      SELECT posts.id, posts.url, posts.message, posts.likes, users.username,
-      users.image, posts."userId"
-      FROM posts
-      JOIN users ON posts."userId" = users.id
-      LEFT JOIN "postsHashtags" ON  posts.id = "postsHashtags"."postId"
-      LEFT JOIN hashtags ON "postsHashtags"."hashtagId" = hashtags.id
-      ${hashtagsFilter}
-      GROUP BY posts.id,users.username,users.image
-      ORDER BY posts."createdAt" DESC
-      LIMIT 20;`);
+    if (!hashtag){
+      const hashtagsFilter = hashtag
+        ? `WHERE hashtags.name = '${hashtag}' AND posts."usersId" <> ${userId}`
+        : `posts."usersId" <> ${userId}`;
+
+      const query = {
+        text: `
+          SELECT posts.id, posts.url, posts.message, posts.likes, users.username,
+          users.image, posts."userId"
+          FROM posts
+          JOIN users ON posts."userId" = users.id
+          LEFT JOIN "postsHashtags" ON  posts.id = "postsHashtags"."postId"
+          LEFT JOIN hashtags ON "postsHashtags"."hashtagId" = hashtags.id
+          $1
+          GROUP BY posts.id,users.username,users.image
+          ORDER BY posts."createdAt" DESC
+          LIMIT 20;`,
+        values: [hashtag],
+      };
+      return db.query(query);
+    }
+
+    const query = {
+      text: `
+        SELECT 
+            posts.id, 
+            posts.url, 
+            posts.message, 
+            posts.likes, 
+            users.username,
+            users.image, 
+            posts."userId"
+        FROM posts
+        JOIN users ON posts."userId" = users.id
+        LEFT JOIN following ON following."followingId" = posts."userId"
+        WHERE 
+            following."userId" = $1
+        GROUP BY 
+            posts.id,
+            users.username,
+            users.image
+        ORDER BY posts."createdAt" DESC
+        LIMIT 20;`,
+      values: [userId],
+    };
+    return db.query(query);
+
   } catch (error) {
     console.log(error);
     return error;
   }
 }
 
-async function getPostByFollowings(userId) {
-  try {
-      return db.query(`
-          SELECT 
-              posts.id, 
-              posts.url, 
-              posts.message, 
-              posts.likes, 
-              users.username,
-              users.image, 
-              posts."userId"
-          FROM posts
-          JOIN users ON posts."userId" = users.id
-          LEFT JOIN following ON following."followingId" = posts."userId"
-          WHERE 
-              posts."updatedAt" IS NULL AND 
-              (posts."userId" = ${userId} OR following."userId" = ${userId})
-          GROUP BY 
-              posts.id,
-              users.username,
-              users.image
-          ORDER BY posts."createdAt" DESC
-          LIMIT 20;
-      `);
-  } catch (error) {
-      console.log(error);
-      return error;
-  }
-}
 
 function getPostsIdByUserId(userId){
   try {
@@ -223,7 +227,6 @@ const postsRepository = {
   getPostByUser,
   publishPost,
   getPostsIdByUserId,
-  getPostByFollowings,
   removePost,
   removeHastags,
   removeLikes

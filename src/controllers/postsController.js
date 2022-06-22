@@ -7,20 +7,22 @@ export async function getPosts(req, res) {
     const { hashtag } = req.query;
     const userId = res.locals.user.id;
     try {
-                
+
+        const result = await usersRepository.countFollowings(userId);
+        const counter = result.rows[0].count;
+        if (counter == 0){
+            console.log("Primeiro if");
+            return res.status(200).send("-1");
+        }
+
         if (!hashtag){
-            const { rows: posts } = await postsRepository.getPostByFollowings(userId);
+            const { rows: posts } = await postsRepository.getPosts(hashtag, userId);
             const postData = await getMetadata(posts);
-            
-            const result = await usersRepository.countFollowings(userId);
-            const counter = result.rows[0].count;
-            if ((postData.length == 0)&&(counter == 0))
-                return res.status(200).send("-1");
-            
+            console.log("Segundo if");
             return res.status(200).send(postData);
         }
 
-        const { rows: posts } = await postsRepository.getPosts(hashtag);
+        const { rows: posts } = await postsRepository.getPosts(hashtag, userId);
         const postData = await getMetadata(posts);
         return res.status(200).send(postData);
 
