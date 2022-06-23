@@ -17,7 +17,6 @@ export async function getPosts(req, res) {
 
         const { rows: posts } = await postsRepository.getPosts(hashtag, userId, limit, offset);
         const postData = await getMetadata(posts);
-        console.log(postData)
         return res.status(200).send(postData);
 
     } catch (error) {

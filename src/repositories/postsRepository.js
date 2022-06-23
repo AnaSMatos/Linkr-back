@@ -12,13 +12,13 @@ async function getPosts(hashtag, userId, limit, offset) {
           JOIN users ON posts."userId" = users.id
           LEFT JOIN "postsHashtags" ON  posts.id = "postsHashtags"."postId"
           LEFT JOIN hashtags ON "postsHashtags"."hashtagId" = hashtags.id
-          WHERE hashtags.name = $1 AND posts."usersId" <> $2
+          WHERE hashtags.name = $1 AND posts."usersId" <> $4
           GROUP BY posts.id,users.username,users.image
           ORDER BY posts."createdAt" DESC
-          LIMIT $3
-          OFFSET $4;
+          LIMIT $2
+          OFFSET $3;
         `,
-        values: [hashtag, userId, limit, offset],
+        values: [hashtag, limit, offset, userId],
       };
   
       return db.query(query);
@@ -39,17 +39,17 @@ async function getPosts(hashtag, userId, limit, offset) {
       JOIN users ON posts."userId" = users.id
       LEFT JOIN following ON following."followingId" = posts."userId"
       WHERE 
-          following."userId" = $1
+          following."userId" = $3
       GROUP BY 
           posts.id,
           users.username,
           users.image
       ORDER BY posts."createdAt" DESC
-      LIMIT 20;
+      LIMIT $1
+      OFFSET $2;
         `,
-      values: [userId],
+      values: [limit,offset, userId],
     };
-
     return db.query(query);
 
   } catch (error) {
