@@ -2,7 +2,6 @@ import db from "../config/db.js";
 
 async function getPosts(hashtag) {
   try {
-    console.log(hashtag);
     const hashtagsFilter = hashtag
       ? `WHERE hashtags.name = '${hashtag}' AND posts."updatedAt" IS NULL`
       : 'WHERE posts."updatedAt" IS NULL';
@@ -21,6 +20,48 @@ async function getPosts(hashtag) {
   } catch (error) {
     console.log(error);
     return error;
+  }
+}
+
+async function getPostByFollowings(userId) {
+  try {
+      return db.query(`
+          SELECT 
+              posts.id, 
+              posts.url, 
+              posts.message, 
+              posts.likes, 
+              users.username,
+              users.image, 
+              posts."userId"
+          FROM posts
+          JOIN users ON posts."userId" = users.id
+          LEFT JOIN following ON following."followingId" = posts."userId"
+          WHERE 
+              posts."updatedAt" IS NULL AND 
+              (posts."userId" = ${userId} OR following."userId" = ${userId})
+          GROUP BY 
+              posts.id,
+              users.username,
+              users.image
+          ORDER BY posts."createdAt" DESC
+          LIMIT 20;
+      `);
+  } catch (error) {
+      console.log(error);
+      return error;
+  }
+}
+
+function getContPosts(userId){
+  try {
+    return db.query(`
+     SELECT COUNT(id) FROM posts
+    `);
+  } catch (error) {
+    console.log(error);
+    return error;
+
   }
 }
 
@@ -116,35 +157,6 @@ async function getPostsByUserId(userId) {
   }
 }
 
-async function getPostByFollowings(userId) {
-    try {
-        return db.query(`
-            SELECT 
-                posts.id, 
-                posts.url, 
-                posts.message, 
-                posts.likes, 
-                users.username,
-                users.image, 
-                posts."userId"
-            FROM posts
-            JOIN users ON posts."userId" = users.id
-            LEFT JOIN following ON following."followingId" = posts."userId"
-            WHERE 
-                posts."updatedAt" IS NULL AND 
-                (posts."userId" = ${userId} OR following."userId" = ${userId})
-            GROUP BY 
-                posts.id,
-                users.username,
-                users.image
-            ORDER BY posts."createdAt" DESC
-            LIMIT 20;
-        `);
-    } catch (error) {
-        console.log(error);
-        return error;
-    }
-}
 
 async function getPostByUser(userId) {
   try {
@@ -238,6 +250,7 @@ const postsRepository = {
   getPostByUser,
   publishPost,
   getPostsIdByUserId,
+  getContPosts,
   getPostByFollowings,
   removePost,
   removeHastags,

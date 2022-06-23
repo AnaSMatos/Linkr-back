@@ -58,20 +58,45 @@ async function getUserByEmail(email) {
   }
 }
 
-async function getUsersByUsername(username) {
+async function getUsersByUsername(username, userId) {
   try {
     const query = {
       text: `
           SELECT
-            id,
-            username,
-            image
+            users.id,
+            users.username,
+            users.image,
+            following."followingId"
           FROM 
             users
+          LEFT JOIN
+            following
+          ON
+            following."followingId" = users.id AND following."userId" = $2
           WHERE 
-            username ILIKE ('%' || $1 || '%');
+            username ILIKE ('%' || $1 || '%')
+          ORDER BY
+            following."createdAt" ASC;
         `,
-      values: [username],
+      values: [username, userId],
+    };
+
+    return db.query(query);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+}
+
+async function countFollowings(userId) {
+  try {
+    const query = {
+      text: `
+          SELECT COUNT(*) 
+          FROM following 
+          WHERE following."userId" = $1
+        `,
+      values: [userId],
     };
 
     return db.query(query);
@@ -86,6 +111,7 @@ const usersRepository = {
   getUserById,
   getUserByEmail,
   getUsersByUsername,
+  countFollowings,
 };
 
 export default usersRepository;
