@@ -1,6 +1,7 @@
 import db from "../config/db.js";
 
-async function getPosts(hashtag) {
+async function getPosts(hashtag,limit,offset) {
+  console.log(limit)
   try {
     const hashtagsFilter = hashtag
       ? `WHERE hashtags.name = '${hashtag}' AND posts."updatedAt" IS NULL`
@@ -16,7 +17,8 @@ async function getPosts(hashtag) {
       ${hashtagsFilter}
       GROUP BY posts.id,users.username,users.image
       ORDER BY posts."createdAt" DESC
-      LIMIT 20;`);
+      LIMIT $1
+      OFFSET $2;`,[limit,offset]);
   } catch (error) {
     console.log(error);
     return error;
@@ -126,7 +128,7 @@ async function getPostsByUserId(userId) {
   }
 }
 
-async function getPostByFollowings(userId) {
+async function getPostByFollowings(userId,limit,offset) {
     try {
         return db.query(`
             SELECT 
@@ -148,8 +150,9 @@ async function getPostByFollowings(userId) {
                 users.username,
                 users.image
             ORDER BY posts."createdAt" DESC
-            LIMIT 20;
-        `);
+            LIMIT $1
+            OFFSET $2;
+        `,[limit,offset]);
     } catch (error) {
         console.log(error);
         return error;

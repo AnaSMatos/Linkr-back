@@ -3,17 +3,15 @@ import urlMetadata from "url-metadata";
 import hashtagRepository from "../repositories/hashtagRepository.js";
 
 export async function getPosts(req, res) {
-    const { hashtag } = req.query;
+    const { hashtag,limit,offset } = req.query;
     const userId = res.locals.user.id;
-    console.log("userId: ", userId);
     try {
         if (!hashtag){
-            const { rows: posts } = await postsRepository.getPostByFollowings(userId);
+            const { rows: posts } = await postsRepository.getPostByFollowings(userId,limit,offset);
             const postData = await getMetadata(posts);
-            console.log(postData)
             res.status(200).send(postData);
         }else{
-            const { rows: posts } = await postsRepository.getPosts(hashtag);
+            const { rows: posts } = await postsRepository.getPosts(hashtag,limit,offset);
             const postData = await getMetadata(posts);
             res.status(200).send(postData);
         }
