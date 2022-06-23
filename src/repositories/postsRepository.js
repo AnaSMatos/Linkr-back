@@ -161,7 +161,6 @@ async function getPostsByUserId(userId) {
   }
 }
 
-
 async function getPostByUser(userId) {
   try {
     return db.query(`
