@@ -1,6 +1,7 @@
 import db from "../config/db.js";
 
-async function getPosts(hashtag) {
+async function getPosts(hashtag, limit, offset) {
+  console.log(limit)
   try {
     const hashtagsFilter = hashtag
       ? `WHERE hashtags.name = '${hashtag}' AND posts."updatedAt" IS NULL`
@@ -16,16 +17,17 @@ async function getPosts(hashtag) {
       ${hashtagsFilter}
       GROUP BY posts.id,users.username,users.image
       ORDER BY posts."createdAt" DESC
-      LIMIT 20;`);
+      LIMIT $1
+      OFFSET $2;`, [limit, offset]);
   } catch (error) {
     console.log(error);
     return error;
   }
 }
 
-async function getPostByFollowings(userId) {
+async function getPostByFollowings(userId, limit, offset) {
   try {
-      return db.query(`
+    return db.query(`
           SELECT 
               posts.id, 
               posts.url, 
@@ -44,15 +46,16 @@ async function getPostByFollowings(userId) {
               users.username,
               users.image
           ORDER BY posts."createdAt" DESC
-          LIMIT 20;
-      `);
+          LIMIT $1
+          OFFSET $2;
+        `, [limit, offset]);
   } catch (error) {
-      console.log(error);
-      return error;
+    console.log(error);
+    return error;
   }
 }
 
-function getContPosts(userId){
+function getContPosts(userId) {
   try {
     return db.query(`
      SELECT COUNT(id) FROM posts
@@ -64,13 +67,13 @@ function getContPosts(userId){
   }
 }
 
-function getPostsIdByUserId(userId){
+function getPostsIdByUserId(userId) {
   try {
     return db.query(`
      SELECT * FROM posts WHERE "userId"=$1 
      ORDER BY "createdAt" DESC
      LIMIT 1
-    `,[userId]);
+    `, [userId]);
   } catch (error) {
     console.log(error);
     return error;
@@ -156,7 +159,6 @@ async function getPostsByUserId(userId) {
   }
 }
 
-
 async function getPostByUser(userId) {
   try {
     return db.query(`
@@ -194,33 +196,33 @@ async function publishPost(url, message, userId) {
 }
 
 async function removePost(id) {
-  try{
+  try {
     return db.query(`
       DELETE FROM posts WHERE id = $1;
     `, [id]);
-  }catch(error){
+  } catch (error) {
     console.log(error);
     return error;
   }
 }
 
-async function removeHastags(id){
-  try{
+async function removeHastags(id) {
+  try {
     return db.query(`
       DELETE FROM "postsHashtags" WHERE "postId" = $1;
     `, [id]);
-  }catch(error){
+  } catch (error) {
     console.log(error);
     return error;
   }
 }
 
-async function removeLikes(id){
-  try{
+async function removeLikes(id) {
+  try {
     return db.query(`
       DELETE FROM likes WHERE "postId" = $1;
     `, [id]);
-  }catch(error){
+  } catch (error) {
     console.log(error);
     return error;
   }
