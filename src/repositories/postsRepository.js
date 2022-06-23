@@ -215,6 +215,21 @@ async function removeLikes(id){
   }
 }
 
+async function updatePost(id, text){
+  const date = new Date();
+  console.log(date.toISOString())
+  try{
+    return db.query(`
+      UPDATE posts
+      SET message = '${text}', "updatedAt" = NOW()
+      WHERE id = ${id}
+    `)
+  }catch(error){
+    console.log(error);
+    return error;
+  }
+}
+
 const postsRepository = {
   getPosts,
   getPostById,
@@ -226,7 +241,8 @@ const postsRepository = {
   getPostByFollowings,
   removePost,
   removeHastags,
-  removeLikes
+  removeLikes,
+  updatePost
 };
 
 export default postsRepository;

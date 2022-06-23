@@ -125,3 +125,25 @@ export async function deletePost(req, res){
         return res.sendStatus(500);
     }
 }
+
+export async function updatePost(req, res){
+    const {postId, message} = req.body;
+    const authorization = req.headers.authorization;
+    const token = authorization.replace("Bearer", "").trim();
+
+    try {
+        const userId = await postsRepository.getUserByToken(token);
+        const post = await postsRepository.getPostById(postId);
+
+        if(userId.rows[0].userId !== post.rows[0].userId){
+            return res.status(401).send("You can't delete this post");
+        }
+
+        await postsRepository.updatePost(postId, message);
+        res.send("Your post was updated").status(200);
+
+    }catch(error){
+        console.log(error);
+        return res.sendStatus(500);
+    }
+}
