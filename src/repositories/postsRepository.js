@@ -58,39 +58,6 @@ async function getPosts(hashtag, userId, limit, offset) {
   }
 }
 
-<<<<<<< HEAD
-=======
-async function getPostByFollowings(userId) {
-  try {
-      return db.query(`
-          SELECT 
-              posts.id, 
-              posts.url, 
-              posts.message, 
-              posts.likes, 
-              users.username,
-              users.image, 
-              posts."userId"
-          FROM posts
-          JOIN users ON posts."userId" = users.id
-          LEFT JOIN following ON following."followingId" = posts."userId"
-          WHERE 
-              posts."updatedAt" IS NULL AND 
-              (posts."userId" = ${userId} OR following."userId" = ${userId})
-          GROUP BY 
-              posts.id,
-              users.username,
-              users.image
-          ORDER BY posts."createdAt" DESC
-          LIMIT 20;
-      `);
-  } catch (error) {
-      console.log(error);
-      return error;
-  }
-}
-
->>>>>>> d7147dffdba80370f2160838a69dff69d8ef5840
 function getContPosts(userId){
   try {
     return db.query(`
@@ -99,10 +66,6 @@ function getContPosts(userId){
   } catch (error) {
     console.log(error);
     return error;
-<<<<<<< HEAD
-=======
-
->>>>>>> d7147dffdba80370f2160838a69dff69d8ef5840
   }
 }
 
