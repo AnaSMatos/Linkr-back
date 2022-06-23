@@ -3,11 +3,11 @@ import db from "../config/db.js";
 async function getPosts(hashtag, userId) {
   try {
 
-    if (!hashtag){
+    if (hashtag){
       const hashtagsFilter = hashtag
         ? `WHERE hashtags.name = '${hashtag}' AND posts."usersId" <> ${userId}`
         : `posts."usersId" <> ${userId}`;
-
+      
       const query = {
         text: `
           SELECT posts.id, posts.url, posts.message, posts.likes, users.username,
@@ -16,38 +16,43 @@ async function getPosts(hashtag, userId) {
           JOIN users ON posts."userId" = users.id
           LEFT JOIN "postsHashtags" ON  posts.id = "postsHashtags"."postId"
           LEFT JOIN hashtags ON "postsHashtags"."hashtagId" = hashtags.id
-          $1
+          WHERE hashtags.name = $1 AND posts."usersId" <> $2
           GROUP BY posts.id,users.username,users.image
           ORDER BY posts."createdAt" DESC
-          LIMIT 20;`,
-        values: [hashtag],
+          LIMIT 20;
+        `,
+        values: [hashTag, userId],
       };
+  
       return db.query(query);
     }
 
+
     const query = {
       text: `
-        SELECT 
-            posts.id, 
-            posts.url, 
-            posts.message, 
-            posts.likes, 
-            users.username,
-            users.image, 
-            posts."userId"
-        FROM posts
-        JOIN users ON posts."userId" = users.id
-        LEFT JOIN following ON following."followingId" = posts."userId"
-        WHERE 
-            following."userId" = $1
-        GROUP BY 
-            posts.id,
-            users.username,
-            users.image
-        ORDER BY posts."createdAt" DESC
-        LIMIT 20;`,
+      SELECT 
+          posts.id, 
+          posts.url, 
+          posts.message, 
+          posts.likes, 
+          users.username,
+          users.image, 
+          posts."userId"
+      FROM posts
+      JOIN users ON posts."userId" = users.id
+      LEFT JOIN following ON following."followingId" = posts."userId"
+      WHERE 
+          following."userId" = $1
+      GROUP BY 
+          posts.id,
+          users.username,
+          users.image
+      ORDER BY posts."createdAt" DESC
+      LIMIT 20;
+        `,
       values: [userId],
     };
+
     return db.query(query);
 
   } catch (error) {

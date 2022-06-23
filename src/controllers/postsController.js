@@ -15,15 +15,9 @@ export async function getPosts(req, res) {
             return res.status(200).send("-1");
         }
 
-        if (!hashtag){
-            const { rows: posts } = await postsRepository.getPosts(hashtag, userId);
-            const postData = await getMetadata(posts);
-            console.log("Segundo if");
-            return res.status(200).send(postData);
-        }
-
         const { rows: posts } = await postsRepository.getPosts(hashtag, userId);
         const postData = await getMetadata(posts);
+        console.log(postData)
         return res.status(200).send(postData);
 
     } catch (error) {
