@@ -4,7 +4,7 @@ import hashtagRepository from "../repositories/hashtagRepository.js";
 import usersRepository from "../repositories/usersRepository.js";
 
 export async function getPosts(req, res) {
-    const { hashtag } = req.query;
+    const { hashtag, limit, offset } = req.query;
     const userId = res.locals.user.id;
     try {
 
@@ -15,7 +15,7 @@ export async function getPosts(req, res) {
             return res.status(200).send("-1");
         }
 
-        const { rows: posts } = await postsRepository.getPosts(hashtag, userId);
+        const { rows: posts } = await postsRepository.getPosts(hashtag, userId, limit, offset);
         const postData = await getMetadata(posts);
         console.log(postData)
         return res.status(200).send(postData);
@@ -53,7 +53,6 @@ export async function postPost(req, res) {
     const authorization = req.headers.authorization;
     const token = authorization.replace("Bearer", "").trim();
     const { url, message, userId, hashtags } = req.body;
-    if (!message) message === null
     try {
         const publish = await postsRepository.publishPost(url, message, userId);
         await createHashtag(hashtags);
@@ -130,9 +129,6 @@ export async function deletePost(req, res){
         const userId = await postsRepository.getUserByToken(token);
         const post = await postsRepository.getPostById(postId);
 
-        console.log('user:', userId.rows)
-        console.log('post:', post.rows)
-
         if(userId.rows[0].userId !== post.rows[0].userId){
             return res.status(401).send("You can't delete this post");
         }
@@ -141,6 +137,28 @@ export async function deletePost(req, res){
         await postsRepository.removeLikes(postId)
         await postsRepository.removePost(postId);
         res.send("Your post was deleted").status(200);
+
+    }catch(error){
+        console.log(error);
+        return res.sendStatus(500);
+    }
+}
+
+export async function updatePost(req, res){
+    const {postId, message} = req.body;
+    const authorization = req.headers.authorization;
+    const token = authorization.replace("Bearer", "").trim();
+
+    try {
+        const userId = await postsRepository.getUserByToken(token);
+        const post = await postsRepository.getPostById(postId);
+
+        if(userId.rows[0].userId !== post.rows[0].userId){
+            return res.status(401).send("You can't delete this post");
+        }
+
+        await postsRepository.updatePost(postId, message);
+        res.send("Your post was updated").status(200);
 
     }catch(error){
         console.log(error);
