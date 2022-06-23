@@ -15,8 +15,9 @@ export async function getUser(req, res) {
 export async function getUsersBySearch(req, res) {
   try {
     const { username } = req.query;
+    const { id: userId } = res.locals.user;
 
-    const users = await UserRepository.getUsersByUsername(username);
+    const users = await UserRepository.getUsersByUsername(username, userId);
 
     if (users.rowCount === 0) {
       return res.status(404).send({
@@ -24,7 +25,14 @@ export async function getUsersBySearch(req, res) {
       });
     }
 
-    res.status(200).send(users.rows);
+    const usersFormated = users.rows.map((user) => ({
+      id: user.id,
+      username: user.username,
+      image: user.image,
+      isFollowing: !!user.followingId,
+    }));
+
+    res.send(usersFormated);
   } catch (e) {
     console.log(e);
     res.sendStatus(500);
