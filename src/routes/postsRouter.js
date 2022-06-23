@@ -1,10 +1,6 @@
 import {Router} from "express";
 
-<<<<<<< HEAD
-import {getPosts, getUserPosts, postPost, deletePost, updatePost} from "../controllers/postsController.js";
-=======
-import {getPosts, getUserPosts, postPost, deletePost, getNewPosts} from "../controllers/postsController.js";
->>>>>>> ff6e9a3db87d83175f79fa02d3b47e9f94f1e7fa
+import {getPosts, getUserPosts, postPost, deletePost, updatePost, getNewPosts} from "../controllers/postsController.js";
 import { authValidator } from "../middlewares/authValidator.js";
 
 const postsRouter = Router();

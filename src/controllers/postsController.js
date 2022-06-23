@@ -57,10 +57,6 @@ export async function postPost(req, res) {
     const authorization = req.headers.authorization;
     const token = authorization.replace("Bearer", "").trim();
     const { url, message, userId, hashtags } = req.body;
-<<<<<<< HEAD
-=======
-    if (!message) message === null
->>>>>>> ff6e9a3db87d83175f79fa02d3b47e9f94f1e7fa
     try {
         const publish = await postsRepository.publishPost(url, message, userId);
         await createHashtag(hashtags);

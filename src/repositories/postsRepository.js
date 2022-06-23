@@ -38,7 +38,6 @@ async function getPostByFollowings(userId) {
           JOIN users ON posts."userId" = users.id
           LEFT JOIN following ON following."followingId" = posts."userId"
           WHERE 
-              posts."updatedAt" IS NULL AND 
               (posts."userId" = ${userId} OR following."userId" = ${userId})
           GROUP BY 
               posts.id,
@@ -105,7 +104,7 @@ async function getPostById(id) {
         FROM 
           posts 
         WHERE 
-          id = $1 AND "updatedAt" IS NULL;`,
+          id = $1;`,
       values: [id],
     };
 
@@ -143,7 +142,7 @@ async function getPostsByUserId(userId) {
       ON 
         "postsHashtags"."hashtagId" = hashtags.id
       WHERE 
-        posts."userId" = $1 AND "updatedAt" IS NULL
+        posts."userId" = $1
       GROUP BY 
         posts.id, users.username, users.image, users.id
       ORDER BY 
@@ -167,7 +166,7 @@ async function getPostByUser(userId) {
       JOIN users ON posts."userId" = users.id
       LEFT JOIN "postsHashtags" ON  posts.id = "postsHashtags"."postId"
       LEFT JOIN hashtags ON "postsHashtags"."hashtagId" = hashtags.id
-      WHERE posts."updatedAt" IS NULL AND posts."userId" = '${userId}'
+      WHERE posts."userId" = '${userId}'
       GROUP BY posts.id,users.username,users.image
       ORDER BY posts."createdAt" DESC
       LIMIT 20;`);
