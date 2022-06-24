@@ -38,8 +38,9 @@ export async function getNewPosts(req, res) {
 
 export async function getUserPosts(req, res) {
     const { userId } = req.params;
+    const {limit, offset} = req.query;
     try {
-        const { rows: posts } = await postsRepository.getPostByUser(userId);
+        const { rows: posts } = await postsRepository.getPostByUser(userId,limit, offset);
         const postData = await getMetadata(posts);
         res.status(200).send(postData);
     } catch (error) {
