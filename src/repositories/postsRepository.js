@@ -17,6 +17,7 @@ async function getPosts(hashtag, userId, limit, offset) {
           LIMIT $2
           OFFSET $3;
         `,
+
         values: [hashtag, limit, offset, userId],
       };
 
@@ -46,6 +47,7 @@ async function getPosts(hashtag, userId, limit, offset) {
       LIMIT $1
       OFFSET $2;
         `,
+
       values: [limit, offset, userId],
     };
     return db.query(query);
@@ -58,7 +60,7 @@ async function getPosts(hashtag, userId, limit, offset) {
 function getContPosts(userId) {
   try {
     return db.query(`
-     SELECT COUNT(id) FROM posts
+      SELECT COUNT(id) FROM posts
     `);
   } catch (error) {
     console.log(error);
@@ -239,6 +241,65 @@ async function removeLikes(id) {
   }
 }
 
+async function sharePost(userId, postId){
+  try{
+    return(
+      db.query(`
+        INSERT INTO reposts("userId", "postId")
+        VALUES ($1, $2)
+      `, [userId, postId])
+    )
+  }catch(error){
+    console.log(error);
+    return error;
+  }
+}
+
+async function getNumberReposts(postId){
+  try{
+    return db.query(`
+      SELECT posts.id, COUNT(reposts."postId") AS reposts 
+      FROM posts
+      LEFT JOIN reposts ON posts.id = reposts."postId"
+      WHERE posts.id = ($1)
+      GROUP BY posts.id
+    `, [postId])
+  }catch(error){
+    console.log(error);
+    return error
+  }
+}
+
+async function getReposts(){
+  try{
+    return db.query(`
+    SELECT 
+      posts.id,
+      posts.url,
+      posts.message,
+      posts.likes,
+      u1.id AS "userId",
+      u1.username,
+      u1.image,
+      u2.id AS "repostedById",
+      u2.username AS "repostedByUsername",
+      reposts."createdAt"
+    FROM posts
+    LEFT JOIN reposts ON posts.id = reposts."postId"
+    LEFT JOIN following ON following."followingId" = posts."userId"
+    JOIN users u1 ON reposts."userId" = u1.id
+    JOIN users u2 ON posts."userId" = u2.id
+    WHERE 
+    following."userId" = 2
+    GROUP BY posts.id, u1.id, u2.id, reposts."createdAt"
+    `)
+  }catch(error){
+    console.log(error)
+    return error;
+  }
+}
+
+
 const postsRepository = {
   getPosts,
   getPostById,
@@ -251,6 +312,9 @@ const postsRepository = {
   removePost,
   removeHastags,
   removeLikes,
+  sharePost,
+  getNumberReposts,
+  getReposts
 };
 
 export default postsRepository;
