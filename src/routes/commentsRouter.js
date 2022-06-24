@@ -1,12 +1,34 @@
-import {Router} from "express";
+import { Router } from "express";
 
-import { postComment, getComments, getContComments } from "../controllers/commentsController.js";
+import {
+  postComment,
+  getComments,
+  getContComments,
+} from "../controllers/commentsController.js";
 import { authValidator } from "../middlewares/authValidator.js";
+import {
+  validateSchema,
+  validateSchemaInParams,
+} from "./../middlewares/schemaValidator.js";
+import {
+  commentSchema,
+  commentSchemaParams,
+} from "./../schemas/commentSchema.js";
 
 const commentsRouter = Router();
 
-commentsRouter.post("/comment", authValidator, postComment);
-commentsRouter.get("/comments", authValidator, getComments);
-commentsRouter.get("/cont-comments", authValidator, getContComments);
+commentsRouter.use(authValidator);
+
+commentsRouter.post("/comments", validateSchema(commentSchema), postComment);
+commentsRouter.get(
+  "/comments/:postId",
+  validateSchemaInParams(commentSchemaParams),
+  getComments,
+);
+commentsRouter.get(
+  "/comments/count/:postId",
+  validateSchemaInParams(commentSchemaParams),
+  getContComments,
+);
 
 export default commentsRouter;
