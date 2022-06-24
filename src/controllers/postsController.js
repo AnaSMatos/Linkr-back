@@ -4,23 +4,18 @@ import hashtagRepository from "../repositories/hashtagRepository.js";
 import usersRepository from "../repositories/usersRepository.js";
 
 export async function getPosts(req, res) {
-    const { hashtag } = req.query;
+    const { hashtag, limit, offset } = req.query;
     const userId = res.locals.user.id;
     try {
-                
-        if (!hashtag){
-            const { rows: posts } = await postsRepository.getPostByFollowings(userId);
-            const postData = await getMetadata(posts);
-            
-            const result = await usersRepository.countFollowings(userId);
-            const counter = result.rows[0].count;
-            if ((postData.length == 0)&&(counter == 0))
-                return res.status(200).send("-1");
-            
-            return res.status(200).send(postData);
+
+        const result = await usersRepository.countFollowings(userId);
+        const counter = result.rows[0].count;
+        if (counter == 0){
+            console.log("Primeiro if");
+            return res.status(200).send("-1");
         }
 
-        const { rows: posts } = await postsRepository.getPosts(hashtag);
+        const { rows: posts } = await postsRepository.getPosts(hashtag, userId, limit, offset);
         const postData = await getMetadata(posts);
         return res.status(200).send(postData);
 

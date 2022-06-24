@@ -6,6 +6,7 @@ import likesRouter from "./likesRouter.js";
 import hashtagRouter from "./hashtagRouter.js";
 import userRouter from "./userRouter.js";
 import followingRouter from "./followingRouter.js";
+import commentsRouter from "./commentsRouter.js";
 
 const router = Router();
 
@@ -15,5 +16,6 @@ router.use(likesRouter);
 router.use(hashtagRouter);
 router.use(userRouter);
 router.use(followingRouter);
+router.use(commentsRouter);
 
 export default router;

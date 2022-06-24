@@ -48,3 +48,12 @@ CREATE TABLE sessions (
   "loginDate" TIMESTAMP NOT NULL DEFAULT NOW(),
   "logoutDate" TIMESTAMP
 );
+
+CREATE TABLE comments (
+  id SERIAL PRIMARY KEY,
+  "postId" INTEGER NOT NULL REFERENCES posts(id),
+  "userId" INTEGER NOT NULL REFERENCES users(id),
+  message TEXT,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+  "updatedAt" TIMESTAMP
+);
