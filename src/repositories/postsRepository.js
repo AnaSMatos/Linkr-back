@@ -11,7 +11,7 @@ async function getPosts(hashtag, userId, limit, offset) {
           JOIN users ON posts."userId" = users.id
           LEFT JOIN "postsHashtags" ON  posts.id = "postsHashtags"."postId"
           LEFT JOIN hashtags ON "postsHashtags"."hashtagId" = hashtags.id
-          WHERE hashtags.name = $1 AND posts."usersId" <> $4
+          WHERE hashtags.name = $1 AND posts."userId" <> $4
           GROUP BY posts.id,users.username,users.image
           ORDER BY posts."createdAt" DESC
           LIMIT $2
@@ -163,7 +163,7 @@ async function getPostsByUserId(userId) {
   }
 }
 
-async function getPostByUser(userId) {
+async function getPostByUser(userId,limit, offset) {
   try {
     return db.query(`
       SELECT posts.id, posts.url, posts.message, posts.likes, users.username,
@@ -172,10 +172,11 @@ async function getPostByUser(userId) {
       JOIN users ON posts."userId" = users.id
       LEFT JOIN "postsHashtags" ON  posts.id = "postsHashtags"."postId"
       LEFT JOIN hashtags ON "postsHashtags"."hashtagId" = hashtags.id
-      WHERE posts."updatedAt" IS NULL AND posts."userId" = '${userId}'
+      WHERE posts."updatedAt" IS NULL AND posts."userId" = $1
       GROUP BY posts.id,users.username,users.image
       ORDER BY posts."createdAt" DESC
-      LIMIT 20;`);
+      LIMIT $2
+      OFFSET $3;`,[userId,limit,offset]);
   } catch (error) {
     console.log(error);
     return error;
