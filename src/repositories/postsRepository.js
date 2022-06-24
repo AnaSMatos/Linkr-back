@@ -55,7 +55,7 @@ async function getPostByFollowings(userId) {
 function getContPosts(userId){
   try {
     return db.query(`
-     SELECT COUNT(id) FROM posts
+      SELECT COUNT(id) FROM posts
     `);
   } catch (error) {
     console.log(error);
@@ -67,9 +67,9 @@ function getContPosts(userId){
 function getPostsIdByUserId(userId){
   try {
     return db.query(`
-     SELECT * FROM posts WHERE "userId"=$1 
-     ORDER BY "createdAt" DESC
-     LIMIT 1
+      SELECT * FROM posts WHERE "userId"=$1 
+      ORDER BY "createdAt" DESC
+      LIMIT 1
     `,[userId]);
   } catch (error) {
     console.log(error);
@@ -227,8 +227,6 @@ async function removeLikes(id){
 }
 
 async function updatePost(id, text){
-  const date = new Date();
-  console.log(date.toISOString())
   try{
     return db.query(`
       UPDATE posts
@@ -240,6 +238,36 @@ async function updatePost(id, text){
     return error;
   }
 }
+
+async function sharePost(userId, postId){
+  try{
+    return(
+      db.query(`
+        INSERT INTO reposts("userId", "postId")
+        VALUES ($1, $2)
+      `, [userId, postId])
+    )
+  }catch(error){
+    console.log(error);
+    return error;
+  }
+}
+
+async function getReposts(postId){
+  try{
+    return db.query(`
+      SELECT posts.id, COUNT(reposts."postId") AS reposts 
+      FROM posts
+      LEFT JOIN reposts ON posts.id = reposts."postId"
+      WHERE posts.id = ($1)
+      GROUP BY posts.id
+    `, [postId])
+  }catch(error){
+    console.log(error);
+    return error
+  }
+}
+
 
 const postsRepository = {
   getPosts,
@@ -254,7 +282,9 @@ const postsRepository = {
   removePost,
   removeHastags,
   removeLikes,
-  updatePost
+  updatePost,
+  sharePost,
+  getReposts
 };
 
 export default postsRepository;

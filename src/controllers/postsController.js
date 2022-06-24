@@ -169,3 +169,25 @@ export async function updatePost(req, res){
         return res.sendStatus(500);
     }
 }
+
+export async function repost(req, res){
+    const {userId, postId} = req.body;
+    try{
+        await postsRepository.sharePost(userId, postId)
+        return res.sendStatus(200);
+    }catch(error){
+        console.log(error);
+        return res.sendStatus(500);
+    }
+}
+
+export async function getRepost(req, res){
+    const {id} = req.params
+    try{
+        const postsData = await postsRepository.getReposts(id);
+        res.send(postsData.rows[0].reposts).status(200);
+    }catch(error){
+        console.log(error);
+        return res.sendStatus(500);
+    }
+}
