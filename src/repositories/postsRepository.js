@@ -2,8 +2,7 @@ import db from "../config/db.js";
 
 async function getPosts(hashtag, userId, limit, offset) {
   try {
-
-    if (hashtag){
+    if (hashtag) {
       const query = {
         text: `
           SELECT posts.id, posts.url, posts.message, posts.likes, users.username,
@@ -20,10 +19,9 @@ async function getPosts(hashtag, userId, limit, offset) {
         `,
         values: [hashtag, limit, offset, userId],
       };
-  
+
       return db.query(query);
     }
-
 
     const query = {
       text: `
@@ -48,17 +46,16 @@ async function getPosts(hashtag, userId, limit, offset) {
       LIMIT $1
       OFFSET $2;
         `,
-      values: [limit,offset, userId],
+      values: [limit, offset, userId],
     };
     return db.query(query);
-
   } catch (error) {
     console.log(error);
     return error;
   }
 }
 
-function getContPosts(userId){
+function getContPosts(userId) {
   try {
     return db.query(`
      SELECT COUNT(id) FROM posts
@@ -69,13 +66,16 @@ function getContPosts(userId){
   }
 }
 
-function getPostsIdByUserId(userId){
+function getPostsIdByUserId(userId) {
   try {
-    return db.query(`
+    return db.query(
+      `
      SELECT * FROM posts WHERE "userId"=$1 
      ORDER BY "createdAt" DESC
      LIMIT 1
-    `,[userId]);
+    `,
+      [userId],
+    );
   } catch (error) {
     console.log(error);
     return error;
@@ -109,7 +109,7 @@ async function getPostById(id) {
         FROM 
           posts 
         WHERE 
-          id = $1 AND "updatedAt" IS NULL;`,
+          id = $1;`,
       values: [id],
     };
 
@@ -198,33 +198,42 @@ async function publishPost(url, message, userId) {
 }
 
 async function removePost(id) {
-  try{
-    return db.query(`
+  try {
+    return db.query(
+      `
       DELETE FROM posts WHERE id = $1;
-    `, [id]);
-  }catch(error){
+    `,
+      [id],
+    );
+  } catch (error) {
     console.log(error);
     return error;
   }
 }
 
-async function removeHastags(id){
-  try{
-    return db.query(`
+async function removeHastags(id) {
+  try {
+    return db.query(
+      `
       DELETE FROM "postsHashtags" WHERE "postId" = $1;
-    `, [id]);
-  }catch(error){
+    `,
+      [id],
+    );
+  } catch (error) {
     console.log(error);
     return error;
   }
 }
 
-async function removeLikes(id){
-  try{
-    return db.query(`
+async function removeLikes(id) {
+  try {
+    return db.query(
+      `
       DELETE FROM likes WHERE "postId" = $1;
-    `, [id]);
-  }catch(error){
+    `,
+      [id],
+    );
+  } catch (error) {
     console.log(error);
     return error;
   }
@@ -241,7 +250,7 @@ const postsRepository = {
   getContPosts,
   removePost,
   removeHastags,
-  removeLikes
+  removeLikes,
 };
 
 export default postsRepository;
