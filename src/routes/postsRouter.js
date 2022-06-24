@@ -1,6 +1,6 @@
 import {Router} from "express";
 
-import {getPosts, getUserPosts, postPost, deletePost, updatePost, getNewPosts, repost, getRepost} from "../controllers/postsController.js";
+import {getPosts, getUserPosts, postPost, deletePost, updatePost, getNewPosts, repost, getNumberRepost, getReposts} from "../controllers/postsController.js";
 import { authValidator } from "../middlewares/authValidator.js";
 
 const postsRouter = Router();
@@ -12,6 +12,6 @@ postsRouter.post("/posts", postPost);
 postsRouter.delete("/posts/:postId", deletePost);
 postsRouter.put("/posts", updatePost);
 postsRouter.post("/repost", authValidator, repost)
-postsRouter.get("/repost/:id", getRepost)
-
+postsRouter.get("/repost/:id", getNumberRepost)
+postsRouter.get("/repost", getReposts)
 export default postsRouter;

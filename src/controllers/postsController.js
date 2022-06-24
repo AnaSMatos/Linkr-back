@@ -176,13 +176,23 @@ export async function repost(req, res){
     }
 }
 
-export async function getRepost(req, res){
+export async function getNumberRepost(req, res){
     const {id} = req.params
     try{
-        const postsData = await postsRepository.getReposts(id);
-        res.send(postsData.rows[0].reposts).status(200);
+        const shareNumber = await postsRepository.getNumberReposts(id);
+        res.send(shareNumber.rows[0].reposts).status(200);
     }catch(error){
         console.log(error);
         return res.sendStatus(500);
+    }
+}
+
+export async function getReposts(req, res){
+    try{
+        const repostData = await postsRepository.getReposts()
+        res.send(repostData.rows[0]).status(200)
+    }catch(error){
+        console.log(error);
+        return res.sendStatus(500)
     }
 }
