@@ -49,6 +49,14 @@ CREATE TABLE sessions (
   "logoutDate" TIMESTAMP
 );
 
+CREATE TABLE reposts (
+  id SERIAL PRIMARY KEY,
+  "userId" INTEGER NOT NULL REFERENCES users(id),
+  "postId" INTEGER NOT NULL REFERENCES posts(id),
+  "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+  "updatedAt" TIMESTAMP
+);
+
 CREATE TABLE comments (
   id SERIAL PRIMARY KEY,
   "postId" INTEGER NOT NULL REFERENCES posts(id),
